@@ -2,7 +2,7 @@
 import { useEffect, useState, useOptimistic, useTransition } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Calendar, Loader2, User, ChevronRight } from "lucide-react";
-import { useAuth } from "../layout";
+import { useAuth } from "@/lib/auth-context";
 import { updateTaskStatus } from "@/app/actions/tasks";
 
 export default function TasksPage() {

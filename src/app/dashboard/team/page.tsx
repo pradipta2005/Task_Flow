@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Users, UserPlus, FolderKanban, Loader2, Shield, CheckCircle2, Clock } from "lucide-react";
-import { useAuth } from "../layout";
+import { useAuth } from "@/lib/auth-context";
 import { useRouter } from "next/navigation";
 
 export default function TeamPage() {

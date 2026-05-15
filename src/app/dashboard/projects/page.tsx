@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FolderPlus, Loader2, Users } from "lucide-react";
-import { useAuth } from "../layout";
+import { useAuth } from "@/lib/auth-context";
 
 export default function ProjectsPage() {
   const auth = useAuth();

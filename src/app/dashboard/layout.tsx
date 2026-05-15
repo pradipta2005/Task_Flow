@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState, createContext, useContext } from "react";
+import { useEffect, useState } from "react";
+import { AuthContext, AuthUser } from "@/lib/auth-context";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -14,14 +15,6 @@ import {
   Users,
   ChevronRight,
 } from "lucide-react";
-
-interface AuthUser {
-  userId: string;
-  role: string;
-}
-
-const AuthContext = createContext<AuthUser | null>(null);
-export const useAuth = () => useContext(AuthContext);
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
