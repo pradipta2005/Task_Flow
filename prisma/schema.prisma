@@ -1,0 +1,60 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String?
+  role      String   @default("MEMBER")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  ownedProjects    Project[]       @relation("ProjectOwner")
+  tasks            Task[]          @relation("TaskAssignee")
+  projectMembers   ProjectMember[] @relation("UserProjectMember")
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  ownerId     String
+  owner       User     @relation("ProjectOwner", fields: [ownerId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tasks   Task[]          @relation("ProjectTasks")
+  members ProjectMember[] @relation("ProjectMembers")
+}
+
+model ProjectMember {
+  id        String   @id @default(cuid())
+  userId    String
+  projectId String
+  user      User     @relation("UserProjectMember", fields: [userId], references: [id])
+  project   Project  @relation("ProjectMembers", fields: [projectId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([userId, projectId])
+}
+
+model Task {
+  id          String    @id @default(cuid())
+  title       String
+  description String?
+  status      String    @default("TODO")
+  dueDate     DateTime?
+  projectId   String
+  project     Project   @relation("ProjectTasks", fields: [projectId], references: [id])
+  assignedTo  String?
+  assignee    User?     @relation("TaskAssignee", fields: [assignedTo], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
