@@ -16,6 +16,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 
+
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
