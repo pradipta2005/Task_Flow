@@ -21,7 +21,7 @@ interface AuthUser {
 }
 
 const AuthContext = createContext<AuthUser | null>(null);
-export const useAuth = () => useContext(AuthContext);
+const useAuth = () => useContext(AuthContext);
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
