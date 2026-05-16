@@ -2,17 +2,17 @@
 
 import Link from "next/link";
 import { ArrowRight, Layers } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, Variants } from "framer-motion";
 
 /* ─── Animation Orchestration ─── */
-const stagger = {
+const stagger: Variants = {
   hidden: {},
   visible: {
     transition: { staggerChildren: 0.1, delayChildren: 0.15 },
   },
 };
 
-const fadeUp = {
+const fadeUp: Variants = {
     hidden: { opacity: 0, y: 20, filter: "blur(10px)" },
     visible: { 
       opacity: 1, 
@@ -22,7 +22,7 @@ const fadeUp = {
     }
   };
 
-const fadeUpSlow = {
+const fadeUpSlow: Variants = {
   hidden: { opacity: 0, y: 40, filter: "blur(8px)" },
   visible: {
     opacity: 1,
@@ -32,7 +32,7 @@ const fadeUpSlow = {
   },
 };
 
-const scaleIn = {
+const scaleIn: Variants = {
   hidden: { opacity: 0, scale: 0.92 },
   visible: {
     opacity: 1,
