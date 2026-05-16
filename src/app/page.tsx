@@ -1,327 +1,477 @@
 "use client";
-import { useRouter } from "next/navigation";
-import { motion, useScroll, useTransform } from "framer-motion";
-import { useRef, useEffect, useState } from "react";
-import { Zap, ArrowRight, Shield, Gauge, BarChart3, Users, CheckCircle2, Lock, Globe2, ArrowUpRight, Play } from "lucide-react";
 
-function DotGrid() {
+import Link from "next/link";
+import { ArrowRight, Layers } from "lucide-react";
+import { motion } from "framer-motion";
+
+/* ─── Animation Orchestration ─── */
+const stagger = {
+  hidden: {},
+  visible: {
+    transition: { staggerChildren: 0.1, delayChildren: 0.15 },
+  },
+};
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 32, filter: "blur(6px)" },
+  visible: {
+    opacity: 1,
+    y: 0,
+    filter: "blur(0px)",
+    transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] },
+  },
+};
+
+const fadeUpSlow = {
+  hidden: { opacity: 0, y: 40, filter: "blur(8px)" },
+  visible: {
+    opacity: 1,
+    y: 0,
+    filter: "blur(0px)",
+    transition: { duration: 0.9, ease: [0.22, 1, 0.36, 1] },
+  },
+};
+
+const scaleIn = {
+  hidden: { opacity: 0, scale: 0.92 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] },
+  },
+};
+
+/* ─── Mini Dashboard Fragments ─── */
+function CompletionCard() {
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      <svg className="absolute inset-0 w-full h-full opacity-[0.03]">
-        <defs>
-          <pattern id="dotgrid" x="0" y="0" width="32" height="32" patternUnits="userSpaceOnUse">
-            <circle cx="1" cy="1" r="1" fill="currentColor" />
-          </pattern>
-        </defs>
-        <rect width="100%" height="100%" fill="url(#dotgrid)" />
-      </svg>
-    </div>
-  );
-}
-
-function FloatingOrbs() {
-  return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      <motion.div
-        animate={{ x: [0, 80, -40, 0], y: [0, -60, 30, 0], scale: [1, 1.2, 0.9, 1] }}
-        transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-        className="absolute top-[8%] left-[12%] w-[500px] h-[500px] rounded-full"
-        style={{ background: "radial-gradient(circle, rgba(251,54,64,0.06) 0%, transparent 70%)" }}
-      />
-      <motion.div
-        animate={{ x: [0, -60, 40, 0], y: [0, 50, -80, 0], scale: [1, 0.8, 1.1, 1] }}
-        transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-        className="absolute top-[25%] right-[8%] w-[600px] h-[600px] rounded-full"
-        style={{ background: "radial-gradient(circle, rgba(99,102,241,0.05) 0%, transparent 70%)" }}
-      />
-      <motion.div
-        animate={{ x: [0, 50, -30, 0], y: [0, -40, 60, 0] }}
-        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-        className="absolute bottom-[10%] left-[30%] w-[400px] h-[400px] rounded-full"
-        style={{ background: "radial-gradient(circle, rgba(16,185,129,0.04) 0%, transparent 70%)" }}
-      />
-    </div>
-  );
-}
-
-function Counter({ target, suffix = "" }: { target: string; suffix?: string }) {
-  const [count, setCount] = useState(0);
-  const num = parseInt(target.replace(/[^0-9]/g, ""));
-  const prefix = target.replace(/[0-9.]/g, "").split("")[0] === "<" ? "<" : "";
-
-  useEffect(() => {
-    let frame: number;
-    const duration = 1500;
-    const start = Date.now();
-    const animate = () => {
-      const elapsed = Date.now() - start;
-      const progress = Math.min(elapsed / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      setCount(Math.round(num * eased));
-      if (progress < 1) frame = requestAnimationFrame(animate);
-    };
-    frame = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(frame);
-  }, [num]);
-
-  return <span>{prefix}{count}{suffix}</span>;
-}
-
-function Marquee() {
-  const items = ["Enterprise Security", "Real-Time Sync", "Role-Based Access", "Kanban Boards", "Team Analytics", "Task Assignment", "Optimistic UI", "Data Isolation"];
-  return (
-    <div className="relative overflow-hidden py-6 border-y border-white/[0.03]">
-      <motion.div
-        animate={{ x: [0, -1920] }}
-        transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
-        className="flex gap-12 whitespace-nowrap"
-      >
-        {[...items, ...items, ...items].map((item, i) => (
-          <span key={i} className="text-[13px] text-zinc-600 font-medium flex items-center gap-3">
-            <span className="w-1 h-1 rounded-full bg-zinc-700" />
-            {item}
+    <div className="group relative p-5 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-xl overflow-hidden transition-all duration-500 hover:border-white/20 hover:bg-white/[0.05]">
+      <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent pointer-events-none" />
+      <div className="relative">
+        <div className="flex items-center justify-between mb-5">
+          <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-500">
+            Sprint Velocity
           </span>
-        ))}
-      </motion.div>
+          <span className="flex items-center gap-1.5 text-[10px] text-zinc-500">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#00FF08] shadow-[0_0_6px_#00FF08]" />
+            Live
+          </span>
+        </div>
+        <div className="text-[3.5rem] font-black leading-none tracking-tighter text-white">
+          98<span className="text-2xl text-zinc-500">.4%</span>
+        </div>
+        <div className="mt-4 flex gap-1.5">
+          {[85, 92, 78, 95, 88, 97, 94, 98].map((h, i) => (
+            <div key={i} className="flex-1 flex flex-col justify-end h-10">
+              <div
+                className="w-full rounded-sm bg-gradient-to-t from-zinc-700 to-zinc-500 group-hover:from-zinc-600 group-hover:to-zinc-400 transition-all duration-500"
+                style={{ height: `${h}%` }}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
 
-const fadeUp = { initial: { opacity: 0, y: 32 }, animate: { opacity: 1, y: 0 } };
-const stagger = { animate: { transition: { staggerChildren: 0.1 } } };
-
-export default function HomePage() {
-  const router = useRouter();
-  const heroRef = useRef(null);
-  const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
-  const heroY = useTransform(scrollYProgress, [0, 0.5], [0, -60]);
-
-  const features = [
-    { icon: Shield, title: "Enterprise RBAC", desc: "Admin and Member roles enforce strict data isolation at every API boundary. Zero data leaks between roles.", gradient: "from-blue-600 to-indigo-600" },
-    { icon: Gauge, title: "Optimistic Updates", desc: "Server Actions with useOptimistic deliver instant UI feedback. Changes reflect before the database confirms.", gradient: "from-emerald-600 to-teal-600" },
-    { icon: BarChart3, title: "Live Analytics", desc: "Executive KPI dashboards with completion rates, workload heatmaps, and overdue task tracking in real-time.", gradient: "from-violet-600 to-purple-600" },
-    { icon: Users, title: "Team Command", desc: "Assign members to projects, monitor individual workloads, and manage your entire organization from one hub.", gradient: "from-amber-600 to-orange-600" },
-    { icon: Lock, title: "Data Isolation", desc: "Members only access their assigned work. Every endpoint validates permissions before returning a single byte.", gradient: "from-rose-600 to-pink-600" },
-    { icon: Globe2, title: "Kanban Workflow", desc: "Visual boards with click-to-advance cards. Todo → In Progress → Done — your team moves forward, never back.", gradient: "from-cyan-600 to-blue-600" },
+function KanbanCard() {
+  const cols = [
+    { label: "Backlog", items: 3, color: "bg-zinc-600" },
+    { label: "In Progress", items: 2, color: "bg-[#FB3640]/60" },
+    { label: "Done", items: 5, color: "bg-emerald-600/60" },
   ];
-
   return (
-    <div className="min-h-screen bg-[#09090b] text-foreground overflow-x-hidden">
-      <DotGrid />
-      <FloatingOrbs />
-
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#09090b]/60 backdrop-blur-2xl border-b border-white/[0.03]">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <motion.div initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }}
-            className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#FB3640] to-[#d62830] flex items-center justify-center shadow-[0_0_20px_rgba(251,54,64,0.15)]">
-              <Zap className="w-4 h-4 text-white" />
-            </div>
-            <span className="font-semibold text-[15px] tracking-tight">TaskFlow</span>
-          </motion.div>
-          <motion.div initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }}
-            className="flex items-center gap-2">
-            <button onClick={() => router.push("/login")}
-              className="px-4 py-2 text-[13px] text-zinc-400 hover:text-foreground transition-colors font-medium">
-              Sign In
-            </button>
-            <button onClick={() => router.push("/signup")}
-              className="px-4 py-2 rounded-lg bg-white text-zinc-900 text-[13px] font-semibold hover:bg-zinc-200 transition-all hover:shadow-[0_0_24px_rgba(255,255,255,0.1)]">
-              Get Started
-            </button>
-          </motion.div>
+    <div className="group relative p-5 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-xl overflow-hidden transition-all duration-500 hover:border-white/20 hover:bg-white/[0.05]">
+      <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent pointer-events-none" />
+      <div className="relative">
+        <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-500 mb-4">
+          Board — Q2 Pipeline
         </div>
-      </nav>
+        <div className="grid grid-cols-3 gap-2">
+          {cols.map((col) => (
+            <div key={col.label}>
+              <div className="text-[9px] font-medium text-zinc-600 mb-2 truncate">
+                {col.label}
+              </div>
+              <div className="space-y-1.5">
+                {Array.from({ length: col.items }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="h-4 rounded-md bg-white/[0.04] border border-white/[0.06]"
+                  >
+                    <div
+                      className={`h-full rounded-md ${col.color} opacity-40`}
+                      style={{ width: `${60 + Math.random() * 40}%` }}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
 
-      <section ref={heroRef} className="relative pt-36 pb-20 px-6">
-        <motion.div style={{ opacity: heroOpacity, y: heroY }} className="max-w-4xl mx-auto text-center relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 16, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ delay: 0.2, duration: 0.6 }}
-            className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/[0.03] border border-white/[0.06] mb-10 backdrop-blur-sm">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
+function ActivityCard() {
+  const rows = [
+    { user: "AK", action: "moved task to Done", time: "2m ago" },
+    { user: "SR", action: "created new sprint", time: "8m ago" },
+    { user: "PK", action: "assigned 3 tasks", time: "14m ago" },
+  ];
+  return (
+    <div className="group relative p-5 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-xl overflow-hidden transition-all duration-500 hover:border-white/20 hover:bg-white/[0.05] col-span-2">
+      <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent pointer-events-none" />
+      <div className="relative">
+        <div className="flex items-center justify-between mb-4">
+          <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-500">
+            Live Activity Feed
+          </span>
+          <div className="flex -space-x-1.5">
+            {["AK", "SR", "PK"].map((u) => (
+              <div
+                key={u}
+                className="w-5 h-5 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center text-[7px] font-bold text-zinc-400"
+              >
+                {u}
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="space-y-3">
+          {rows.map((row, i) => (
+            <div key={i} className="flex items-center gap-3">
+              <div className="w-6 h-6 rounded-full bg-zinc-800/80 flex items-center justify-center text-[8px] font-bold text-zinc-400 shrink-0">
+                {row.user}
+              </div>
+              <div className="flex-1 min-w-0">
+                <span className="text-xs text-zinc-300">{row.action}</span>
+              </div>
+              <span className="text-[10px] text-zinc-600 shrink-0">
+                {row.time}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function UptimeCard() {
+  return (
+    <div className="group relative p-5 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-xl overflow-hidden transition-all duration-500 hover:border-white/20 hover:bg-white/[0.05]">
+      <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent pointer-events-none" />
+      <div className="relative text-center">
+        <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-500 mb-3">
+          System Uptime
+        </div>
+        <div className="text-2xl font-black text-white tracking-tight">
+          99.99%
+        </div>
+        <div className="flex justify-center gap-[3px] mt-3">
+          {Array.from({ length: 18 }).map((_, i) => (
+            <div
+              key={i}
+              className="w-1.5 h-3 rounded-full bg-emerald-500/30"
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Feature Grid Items ─── */
+const features = [
+  {
+    tag: "Security",
+    title: "Role-Based Isolation",
+    desc: "Enterprise-grade access control. Admins hold strategic oversight while contributors see only their deliverables.",
+  },
+  {
+    tag: "Performance",
+    title: "Optimistic Updates",
+    desc: "Powered by Server Actions. Board changes register instantly without waiting for network round-trips.",
+  },
+  {
+    tag: "Visibility",
+    title: "Pipeline Intelligence",
+    desc: "Immediate visual feedback on project bottlenecks, overdue tasks, and contributor velocity metrics.",
+  },
+];
+
+/* ─── Page Component ─── */
+export default function Home() {
+  return (
+    <div className="min-h-screen bg-zinc-950 text-zinc-50 selection:bg-[#FB3640]/30 selection:text-white overflow-hidden">
+      {/* ─── Ambient Background ─── */}
+      <div className="fixed inset-0 pointer-events-none" aria-hidden>
+        <div className="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] rounded-full bg-[#FB3640]/[0.04] blur-[120px]" />
+        <div className="absolute bottom-[-20%] left-[-10%] w-[500px] h-[500px] rounded-full bg-zinc-500/[0.03] blur-[100px]" />
+        {/* Subtle grid */}
+        <div
+          className="absolute inset-0 opacity-[0.015]"
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)",
+            backgroundSize: "80px 80px",
+          }}
+        />
+      </div>
+
+      {/* ─── Navigation ─── */}
+      <motion.nav
+        initial={{ opacity: 0, y: -12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+        className="fixed top-0 w-full z-50 border-b border-white/[0.06] bg-zinc-950/70 backdrop-blur-2xl"
+      >
+        <div className="max-w-[1320px] mx-auto px-6 lg:px-8 h-16 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2.5 group">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#FB3640] to-red-800 flex items-center justify-center shadow-[0_0_16px_rgba(251,54,64,0.25)] group-hover:shadow-[0_0_24px_rgba(251,54,64,0.35)] transition-shadow">
+              <Layers className="w-4 h-4 text-white" />
+            </div>
+            <span className="font-bold tracking-tight text-[17px]">
+              TaskFlow
             </span>
-            <span className="text-[12px] font-medium text-zinc-400">Now shipping v2.0 — Server Actions & Optimistic UI</span>
-          </motion.div>
-
-          <motion.h1
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.35, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-            className="text-5xl sm:text-6xl md:text-[80px] font-bold tracking-[-0.03em] leading-[0.95] mb-8"
-          >
-            <span className="block">Ship work,</span>
-            <span className="block mt-2 bg-gradient-to-r from-white via-zinc-300 to-zinc-600 bg-clip-text text-transparent">
-              not status updates.
-            </span>
-          </motion.h1>
-
-          <motion.p
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5, duration: 0.6 }}
-            className="text-lg md:text-xl text-zinc-500 max-w-xl mx-auto leading-relaxed mb-12"
-          >
-            The command center for teams that execute. Real-time kanban boards,
-            role-based analytics, and instant task assignment — in one obsidian interface.
-          </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.65, duration: 0.6 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4"
-          >
-            <motion.button
-              whileHover={{ scale: 1.03, boxShadow: "0 0 40px rgba(255,255,255,0.08)" }}
-              whileTap={{ scale: 0.97 }}
-              onClick={() => router.push("/signup")}
-              className="group px-8 py-4 rounded-xl bg-white text-zinc-900 font-semibold text-[15px] flex items-center gap-3 transition-all"
+          </Link>
+          <div className="flex items-center gap-5">
+            <Link
+              href="/login"
+              className="text-sm text-zinc-400 hover:text-white transition-colors duration-300"
             >
-              Start Building
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </motion.button>
-            <motion.button
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-              onClick={() => router.push("/login")}
-              className="group px-8 py-4 rounded-xl bg-white/[0.03] text-foreground border border-white/[0.06] font-medium text-[15px] flex items-center gap-3 hover:bg-white/[0.06] transition-all"
+              Sign In
+            </Link>
+            <Link
+              href="/dashboard"
+              className="text-sm px-4 py-2 bg-white/[0.06] border border-white/10 rounded-lg text-zinc-200 hover:bg-white/[0.1] hover:text-white transition-all duration-300 flex items-center gap-1.5"
             >
-              <Play className="w-3.5 h-3.5" />
-              Live Demo
-            </motion.button>
-          </motion.div>
+              Dashboard
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+        </div>
+      </motion.nav>
 
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1, duration: 0.8 }}
-            className="mt-16 flex items-center justify-center gap-8 text-zinc-600"
-          >
-            <div className="flex -space-x-2">
-              {["A", "S", "M", "K"].map((l, i) => (
-                <div key={i} className="w-8 h-8 rounded-full bg-gradient-to-br from-zinc-700 to-zinc-800 border-2 border-[#09090b] flex items-center justify-center text-[10px] font-semibold text-zinc-400">
-                  {l}
+      {/* ─── Hero Section — Asymmetrical Editorial ─── */}
+      <main className="relative z-10">
+        <section className="max-w-[1320px] mx-auto px-6 lg:px-8 pt-36 lg:pt-44 pb-20 lg:pb-32">
+          <div className="grid lg:grid-cols-12 gap-12 lg:gap-6 items-start">
+            {/* Left Column — 7 cols on large screens */}
+            <motion.div
+              className="lg:col-span-7 space-y-8"
+              variants={stagger}
+              initial="hidden"
+              animate="visible"
+            >
+              {/* Status Pill */}
+              <motion.div variants={fadeUp}>
+                <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-white/[0.03] border border-white/[0.08] text-[11px] font-medium text-zinc-400 tracking-wide">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#00FF08] shadow-[0_0_6px_#00FF08]" />
+                  System Live — v2.0 Production
                 </div>
+              </motion.div>
+
+              {/* Headline */}
+              <motion.h1
+                variants={fadeUp}
+                className="text-[clamp(3rem,7vw,6.5rem)] font-black leading-[0.92] tracking-[-0.04em]"
+              >
+                <span className="block text-transparent bg-clip-text bg-gradient-to-b from-white via-white to-zinc-500">
+                  Execute with
+                </span>
+                <span className="block text-transparent bg-clip-text bg-gradient-to-b from-zinc-200 to-zinc-600">
+                  absolute precision.
+                </span>
+              </motion.h1>
+
+              {/* Sub-copy */}
+              <motion.p
+                variants={fadeUp}
+                className="text-base lg:text-lg text-zinc-500 max-w-lg leading-relaxed"
+              >
+                TaskFlow strips away the noise. Built for engineering and
+                analytics teams who need to track, assign, and ship complex
+                pipelines — without the clutter.
+              </motion.p>
+
+              {/* CTA Row */}
+              <motion.div
+                variants={fadeUp}
+                className="flex flex-wrap items-center gap-4 pt-2"
+              >
+                <Link
+                  href="/login"
+                  className="group relative inline-flex items-center gap-2 px-7 py-3.5 bg-[#FB3640] text-white text-sm font-semibold rounded-xl transition-all duration-300 hover:brightness-110 shadow-[0_0_24px_rgba(251,54,64,0.3),_0_2px_8px_rgba(0,0,0,0.4)] hover:shadow-[0_0_40px_rgba(251,54,64,0.45),_0_4px_16px_rgba(0,0,0,0.5)]"
+                >
+                  Start Executing
+                  <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5" />
+                </Link>
+                <Link
+                  href="https://github.com/pradipta2005/Task_Flow"
+                  target="_blank"
+                  className="inline-flex items-center gap-2 px-7 py-3.5 bg-transparent border border-white/10 text-zinc-400 text-sm font-medium rounded-xl transition-all duration-300 hover:border-white/20 hover:text-white hover:bg-white/[0.03]"
+                >
+                  View Architecture
+                </Link>
+              </motion.div>
+
+              {/* Social Proof Strip */}
+              <motion.div
+                variants={fadeUp}
+                className="flex items-center gap-6 pt-6 border-t border-white/[0.06]"
+              >
+                <div>
+                  <div className="text-2xl font-black text-white tracking-tight">
+                    4.2k+
+                  </div>
+                  <div className="text-[10px] text-zinc-600 uppercase tracking-widest mt-0.5">
+                    Tasks Managed
+                  </div>
+                </div>
+                <div className="w-px h-10 bg-white/[0.06]" />
+                <div>
+                  <div className="text-2xl font-black text-white tracking-tight">
+                    12
+                  </div>
+                  <div className="text-[10px] text-zinc-600 uppercase tracking-widest mt-0.5">
+                    Active Teams
+                  </div>
+                </div>
+                <div className="w-px h-10 bg-white/[0.06]" />
+                <div>
+                  <div className="text-2xl font-black text-white tracking-tight">
+                    99.9%
+                  </div>
+                  <div className="text-[10px] text-zinc-600 uppercase tracking-widest mt-0.5">
+                    Uptime SLA
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+
+            {/* Right Column — 5 cols, Bento Box Dashboard Fragments */}
+            <motion.div
+              className="lg:col-span-5 relative hidden lg:block"
+              variants={stagger}
+              initial="hidden"
+              animate="visible"
+            >
+              {/* Glow behind bento */}
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] bg-[#FB3640]/[0.06] blur-[100px] rounded-full pointer-events-none" />
+
+              <div className="relative grid grid-cols-2 gap-3">
+                <motion.div variants={fadeUpSlow}>
+                  <CompletionCard />
+                </motion.div>
+                <motion.div variants={fadeUpSlow} className="mt-10">
+                  <KanbanCard />
+                </motion.div>
+                <motion.div variants={scaleIn}>
+                  <ActivityCard />
+                </motion.div>
+                <motion.div variants={fadeUpSlow}>
+                  <UptimeCard />
+                </motion.div>
+              </div>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* ─── Feature Grid — Editorial Style ─── */}
+        <section className="border-t border-white/[0.06]">
+          <motion.div
+            className="max-w-[1320px] mx-auto px-6 lg:px-8 py-24 lg:py-32"
+            variants={stagger}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-80px" }}
+          >
+            <motion.div variants={fadeUp} className="mb-16">
+              <div className="text-[10px] font-semibold uppercase tracking-[0.25em] text-zinc-600 mb-3">
+                Core Capabilities
+              </div>
+              <h2 className="text-3xl lg:text-4xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white to-zinc-400">
+                Built for teams who ship.
+              </h2>
+            </motion.div>
+
+            <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
+              {features.map((f, i) => (
+                <motion.div
+                  key={i}
+                  variants={fadeUp}
+                  className="group relative p-7 rounded-2xl bg-white/[0.02] border border-white/[0.08] backdrop-blur-xl transition-all duration-500 hover:border-white/[0.16] hover:bg-white/[0.04]"
+                >
+                  <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/[0.08] to-transparent" />
+                  <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-600 mb-4">
+                    {f.tag}
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-3 tracking-tight">
+                    {f.title}
+                  </h3>
+                  <p className="text-sm text-zinc-500 leading-relaxed">
+                    {f.desc}
+                  </p>
+                </motion.div>
               ))}
             </div>
-            <p className="text-[13px]">
-              <span className="text-foreground font-semibold">200+</span> teams shipping with TaskFlow
-            </p>
           </motion.div>
-        </motion.div>
-      </section>
+        </section>
 
-      <Marquee />
-
-      <section className="py-24 px-6">
-        <div className="max-w-5xl mx-auto">
-          <motion.div variants={stagger} initial="initial" whileInView="animate" viewport={{ once: true, margin: "-100px" }}
-            className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {[
-              { value: "99.9", suffix: "%", label: "Uptime Guarantee" },
-              { value: "50", suffix: "ms", label: "Avg Response", prefix: "<" },
-              { value: "256", suffix: "-bit", label: "AES Encryption" },
-              { value: "10", suffix: "k+", label: "Tasks Managed" },
-            ].map((m, i) => (
-              <motion.div key={m.label} variants={fadeUp}
-                className="glass-card p-6 rounded-2xl text-center group hover:border-white/[0.1] transition-all">
-                <h3 className="text-3xl md:text-4xl font-bold text-foreground mb-2 tabular-nums">
-                  {m.prefix || ""}<Counter target={m.value} suffix={m.suffix} />
-                </h3>
-                <p className="text-[11px] text-zinc-600 uppercase tracking-wider font-medium">{m.label}</p>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
-
-      <section className="py-24 px-6 relative">
-        <div className="max-w-6xl mx-auto">
-          <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-            transition={{ duration: 0.6 }} className="text-center mb-20">
-            <p className="text-[12px] font-semibold text-[#FB3640] uppercase tracking-widest mb-4">Capabilities</p>
-            <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-5">
-              Everything you need.
-              <br />
-              <span className="text-zinc-600">Nothing you don&apos;t.</span>
-            </h2>
-          </motion.div>
-
-          <motion.div variants={stagger} initial="initial" whileInView="animate" viewport={{ once: true, margin: "-60px" }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {features.map((f, i) => {
-              const Icon = f.icon;
-              return (
-                <motion.div key={f.title} variants={fadeUp}
-                  className="group relative p-6 rounded-2xl border border-white/[0.04] bg-white/[0.01] hover:bg-white/[0.03] hover:border-white/[0.08] transition-all duration-500 overflow-hidden">
-                  <div className={`absolute -top-20 -right-20 w-40 h-40 rounded-full bg-gradient-to-br ${f.gradient} opacity-0 group-hover:opacity-[0.07] blur-3xl transition-opacity duration-700`} />
-                  <div className="relative z-10">
-                    <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${f.gradient} flex items-center justify-center mb-5 opacity-80 group-hover:opacity-100 transition-opacity shadow-lg`}>
-                      <Icon className="w-[18px] h-[18px] text-white" />
-                    </div>
-                    <h3 className="text-[15px] font-semibold text-foreground mb-2.5 flex items-center gap-2">
-                      {f.title}
-                      <ArrowUpRight className="w-3.5 h-3.5 text-zinc-700 opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
-                    </h3>
-                    <p className="text-[13px] text-zinc-500 leading-relaxed">{f.desc}</p>
-                  </div>
-                </motion.div>
-              );
-            })}
-          </motion.div>
-        </div>
-      </section>
-
-      <section className="py-32 px-6 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#FB3640]/[0.02] to-transparent pointer-events-none" />
-        <motion.div initial={{ opacity: 0, y: 32 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-          transition={{ duration: 0.7 }} className="max-w-2xl mx-auto text-center relative z-10">
+        {/* ─── Bottom CTA Band ─── */}
+        <section className="border-t border-white/[0.06]">
           <motion.div
-            animate={{ rotate: [0, 5, -5, 0] }}
-            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-            className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#FB3640] to-[#d62830] flex items-center justify-center mx-auto mb-10 shadow-[0_0_60px_rgba(251,54,64,0.15)]"
+            className="max-w-[1320px] mx-auto px-6 lg:px-8 py-24 lg:py-28 text-center"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-80px" }}
+            variants={stagger}
           >
-            <CheckCircle2 className="w-8 h-8 text-white" />
+            <motion.p
+              variants={fadeUp}
+              className="text-[10px] font-semibold uppercase tracking-[0.25em] text-zinc-600 mb-4"
+            >
+              Ready to ship
+            </motion.p>
+            <motion.h2
+              variants={fadeUp}
+              className="text-4xl lg:text-5xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-white to-zinc-500"
+            >
+              Stop planning. Start executing.
+            </motion.h2>
+            <motion.div variants={fadeUp} className="mt-8">
+              <Link
+                href="/login"
+                className="group inline-flex items-center gap-2 px-8 py-4 bg-[#FB3640] text-white font-semibold rounded-xl transition-all duration-300 hover:brightness-110 shadow-[0_0_24px_rgba(251,54,64,0.3),_0_2px_8px_rgba(0,0,0,0.4)] hover:shadow-[0_0_40px_rgba(251,54,64,0.45),_0_4px_16px_rgba(0,0,0,0.5)]"
+              >
+                Get Started Now
+                <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5" />
+              </Link>
+            </motion.div>
           </motion.div>
-          <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-5">
-            Ready to ship?
-          </h2>
-          <p className="text-zinc-500 text-lg mb-10 max-w-md mx-auto leading-relaxed">
-            Stop managing spreadsheets. Start managing outcomes.
-          </p>
-          <motion.button
-            whileHover={{ scale: 1.03, boxShadow: "0 0 50px rgba(255,255,255,0.1)" }}
-            whileTap={{ scale: 0.97 }}
-            onClick={() => router.push("/signup")}
-            className="group px-10 py-4 rounded-xl bg-white text-zinc-900 font-semibold text-[15px] flex items-center gap-3 mx-auto transition-all"
-          >
-            Create Your Workspace
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-          </motion.button>
-        </motion.div>
-      </section>
+        </section>
 
-      <footer className="border-t border-white/[0.03] py-10 px-6">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2.5">
-            <div className="w-6 h-6 rounded-md bg-gradient-to-br from-[#FB3640] to-[#d62830] flex items-center justify-center">
-              <Zap className="w-3 h-3 text-white" />
+        {/* ─── Footer ─── */}
+        <footer className="border-t border-white/[0.06] py-8">
+          <div className="max-w-[1320px] mx-auto px-6 lg:px-8 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="w-5 h-5 rounded bg-gradient-to-br from-[#FB3640] to-red-900 flex items-center justify-center">
+                <Layers className="w-2.5 h-2.5 text-white" />
+              </div>
+              <span className="text-xs font-semibold text-zinc-600 tracking-tight">
+                TaskFlow
+              </span>
             </div>
-            <span className="text-sm font-medium text-zinc-500">TaskFlow</span>
+            <div className="flex items-center gap-1.5 text-[10px] text-zinc-700">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#00FF08] shadow-[0_0_4px_#00FF08]" />
+              All Systems Operational
+            </div>
           </div>
-          <div className="flex items-center gap-6">
-            {["Privacy", "Terms", "Security", "Status"].map(link => (
-              <span key={link} className="text-[12px] text-zinc-700 hover:text-zinc-400 cursor-pointer transition-colors">{link}</span>
-            ))}
-          </div>
-          <p className="text-[11px] text-zinc-800">© 2026 TaskFlow Inc.</p>
-        </div>
-      </footer>
+        </footer>
+      </main>
     </div>
   );
 }
